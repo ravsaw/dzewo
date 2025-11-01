@@ -12,6 +12,7 @@ from .person_list_widget import PersonListWidget
 from .person_dialog import PersonDialog
 from .ancestor_tree_widget import AncestorTreeWidget
 from .descendant_tree_widget import DescendantTreeWidget
+from .full_tree_widget import FullTreeWidget
 from .timeline_widget import TimelineWidget
 from ..business_logic.relationship_calculator import RelationshipCalculator
 
@@ -69,6 +70,10 @@ class MainWindow(QMainWindow):
         # Tab - Drzewo potomków
         self.descendant_tree_widget = DescendantTreeWidget(self.db_manager, self.relationship_calc)
         self.tabs.addTab(self.descendant_tree_widget, "Drzewo Potomków")
+        
+        # Tab - Pełne drzewo
+        self.full_tree_widget = FullTreeWidget(self.db_manager, self.relationship_calc)
+        self.tabs.addTab(self.full_tree_widget, "Pełne Drzewo")
         
         # Tab - Oś czasu
         self.timeline_widget = TimelineWidget(self.db_manager)
@@ -178,6 +183,7 @@ class MainWindow(QMainWindow):
         """Ładuje dane do wszystkich widgetów"""
         self.person_list_widget.load_persons()
         self.timeline_widget.load_timeline()
+        self.full_tree_widget.load_tree()
         
         if self.current_person_id:
             self.ancestor_tree_widget.load_tree(self.current_person_id)

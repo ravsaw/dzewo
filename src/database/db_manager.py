@@ -37,6 +37,7 @@ class DatabaseManager:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 imie TEXT NOT NULL,
                 nazwisko TEXT NOT NULL,
+                nazwisko_panienskie TEXT,
                 data_urodzenia DATE,
                 data_smierci DATE,
                 plec TEXT,
@@ -60,11 +61,26 @@ class DatabaseManager:
         ''')
         
         self.connection.commit()
+        
+        # Migration: Add nazwisko_panienskie column if it doesn't exist
+        self._migrate_database()
+    
+    def _migrate_database(self):
+        """Migruje bazę danych do najnowszej wersji"""
+        # Sprawdź czy kolumna nazwisko_panienskie istnieje
+        self.cursor.execute("PRAGMA table_info(osoby)")
+        columns = [column[1] for column in self.cursor.fetchall()]
+        
+        if 'nazwisko_panienskie' not in columns:
+            self.cursor.execute('ALTER TABLE osoby ADD COLUMN nazwisko_panienskie TEXT')
+            self.connection.commit()
+
     
     def add_person(self, imie: str, nazwisko: str, data_urodzenia: Optional[str] = None,
                    data_smierci: Optional[str] = None, plec: Optional[str] = None,
                    miejsce_urodzenia: Optional[str] = None, miejsce_smierci: Optional[str] = None,
-                   notatki: Optional[str] = None, zdjecie_sciezka: Optional[str] = None) -> int:
+                   notatki: Optional[str] = None, zdjecie_sciezka: Optional[str] = None,
+                   nazwisko_panienskie: Optional[str] = None) -> int:
         """
         Dodaje osobę do bazy danych
         
@@ -78,15 +94,16 @@ class DatabaseManager:
             miejsce_smierci: Miejsce śmierci
             notatki: Notatki o osobie
             zdjecie_sciezka: Ścieżka do zdjęcia
+            nazwisko_panienskie: Nazwisko panieńskie
             
         Returns:
             ID dodanej osoby
         """
         self.cursor.execute('''
-            INSERT INTO osoby (imie, nazwisko, data_urodzenia, data_smierci, plec,
+            INSERT INTO osoby (imie, nazwisko, nazwisko_panienskie, data_urodzenia, data_smierci, plec,
                              miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (imie, nazwisko, data_urodzenia, data_smierci, plec,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (imie, nazwisko, nazwisko_panienskie, data_urodzenia, data_smierci, plec,
               miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka))
         
         self.connection.commit()
@@ -96,7 +113,7 @@ class DatabaseManager:
                      data_urodzenia: Optional[str] = None, data_smierci: Optional[str] = None,
                      plec: Optional[str] = None, miejsce_urodzenia: Optional[str] = None,
                      miejsce_smierci: Optional[str] = None, notatki: Optional[str] = None,
-                     zdjecie_sciezka: Optional[str] = None):
+                     zdjecie_sciezka: Optional[str] = None, nazwisko_panienskie: Optional[str] = None):
         """
         Aktualizuje dane osoby
         
@@ -111,14 +128,15 @@ class DatabaseManager:
             miejsce_smierci: Miejsce śmierci
             notatki: Notatki
             zdjecie_sciezka: Ścieżka do zdjęcia
+            nazwisko_panienskie: Nazwisko panieńskie
         """
         self.cursor.execute('''
             UPDATE osoby
-            SET imie = ?, nazwisko = ?, data_urodzenia = ?, data_smierci = ?,
+            SET imie = ?, nazwisko = ?, nazwisko_panienskie = ?, data_urodzenia = ?, data_smierci = ?,
                 plec = ?, miejsce_urodzenia = ?, miejsce_smierci = ?,
                 notatki = ?, zdjecie_sciezka = ?
             WHERE id = ?
-        ''', (imie, nazwisko, data_urodzenia, data_smierci, plec,
+        ''', (imie, nazwisko, nazwisko_panienskie, data_urodzenia, data_smierci, plec,
               miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka, person_id))
         
         self.connection.commit()
