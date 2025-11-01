@@ -4,8 +4,6 @@ FullTreeWidget - Widget do wyświetlania pełnego drzewa genealogicznego
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPainter, QPen, QBrush, QColor, QFont
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.patches as mpatches
@@ -253,13 +251,13 @@ class FullTreeWidget(QWidget):
                                          facecolor=color, edgecolor='black', linewidth=1.5)
                 ax.add_patch(rect)
                 
-                # Tekst
-                name = f"{person['imie']} {person['nazwisko']}"
-                if person.get('nazwisko_panienskie'):
-                    name += f"\n({person['nazwisko_panienskie']})"
-                
+                # Tekst z nazwiskiem panieńskim jeśli jest dostępne
                 birth_year = person['data_urodzenia'][:4] if person.get('data_urodzenia') else '?'
                 
-                # Skrócony tekst dla małych węzłów
-                ax.text(x, y, f"{person['imie']}\n{person['nazwisko']}\n({birth_year})",
+                if person.get('nazwisko_panienskie'):
+                    display_text = f"{person['imie']}\n{person['nazwisko']}\n({person['nazwisko_panienskie']})\n{birth_year}"
+                else:
+                    display_text = f"{person['imie']}\n{person['nazwisko']}\n({birth_year})"
+                
+                ax.text(x, y, display_text,
                        ha='center', va='center', fontsize=7, weight='bold')

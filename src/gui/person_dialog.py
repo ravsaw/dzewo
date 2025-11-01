@@ -296,17 +296,18 @@ class PersonDialog(QDialog):
                     nazwisko_panienskie
                 )
                 
-                # Dodaj relacje z rodzicami jeśli wybrano
-                mother_id = self.mother_combo.currentData()
-                father_id = self.father_combo.currentData()
+                # Dodaj relacje z rodzicami jeśli wybrano (tylko dla nowej osoby)
+                if hasattr(self, 'mother_combo'):
+                    mother_id = self.mother_combo.currentData()
+                    if mother_id:
+                        self.db_manager.add_relation(mother_id, new_person_id, 'rodzic')
+                        self.db_manager.add_relation(new_person_id, mother_id, 'dziecko')
                 
-                if mother_id:
-                    self.db_manager.add_relation(mother_id, new_person_id, 'rodzic')
-                    self.db_manager.add_relation(new_person_id, mother_id, 'dziecko')
-                
-                if father_id:
-                    self.db_manager.add_relation(father_id, new_person_id, 'rodzic')
-                    self.db_manager.add_relation(new_person_id, father_id, 'dziecko')
+                if hasattr(self, 'father_combo'):
+                    father_id = self.father_combo.currentData()
+                    if father_id:
+                        self.db_manager.add_relation(father_id, new_person_id, 'rodzic')
+                        self.db_manager.add_relation(new_person_id, father_id, 'dziecko')
             
             self.accept()
         except Exception as e:
