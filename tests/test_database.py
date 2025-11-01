@@ -109,6 +109,33 @@ class TestDatabaseManager(unittest.TestCase):
         
         results = self.db_manager.search_persons('Nowak')
         self.assertEqual(len(results), 1)
+    
+    def test_add_person_with_maiden_name(self):
+        """Test dodawania osoby z nazwiskiem panieńskim"""
+        person_id = self.db_manager.add_person(
+            'Anna', 'Kowalska', '1990-01-01', None, 'K',
+            nazwisko_panienskie='Nowak'
+        )
+        person = self.db_manager.get_person(person_id)
+        
+        self.assertIsNotNone(person)
+        self.assertEqual(person['imie'], 'Anna')
+        self.assertEqual(person['nazwisko'], 'Kowalska')
+        self.assertEqual(person['nazwisko_panienskie'], 'Nowak')
+    
+    def test_update_person_with_maiden_name(self):
+        """Test aktualizacji osoby z nazwiskiem panieńskim"""
+        person_id = self.db_manager.add_person(
+            'Maria', 'Wiśniewska', '1985-05-15', None, 'K'
+        )
+        
+        self.db_manager.update_person(
+            person_id, 'Maria', 'Wiśniewska', '1985-05-15', None, 'K',
+            nazwisko_panienskie='Kowalska'
+        )
+        
+        person = self.db_manager.get_person(person_id)
+        self.assertEqual(person['nazwisko_panienskie'], 'Kowalska')
 
 
 if __name__ == '__main__':
