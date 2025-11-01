@@ -96,7 +96,8 @@ Przy pierwszym uruchomieniu aplikacja automatycznie utworzy:
 
 ### 1. Zarządzanie osobami
 
-- **Dodawanie nowych osób** - wprowadzanie danych personalnych (imię, nazwisko, daty, miejsca, notatki)
+- **Dodawanie nowych osób** - wprowadzanie danych personalnych (imię, nazwisko, nazwisko panieńskie, daty, miejsca, notatki)
+- **Wybór rodziców** - opcjonalne dodawanie rodziców przy tworzeniu nowej osoby
 - **Edycja danych** - aktualizacja informacji o osobach
 - **Usuwanie osób** - usuwanie wraz z relacjami
 - **Wyszukiwanie** - szybkie znajdowanie osób po imieniu lub nazwisku
@@ -108,6 +109,7 @@ Przy pierwszym uruchomieniu aplikacja automatycznie utworzy:
 - **Dzieci** - automatyczne tworzenie relacji dwukierunkowych
 - **Małżonkowie** - określanie związków małżeńskich
 - **Usuwanie relacji** - zarządzanie istniejącymi relacjami
+- **Automatyczne relacje** - przy dodawaniu osoby można od razu wybrać rodziców
 
 ### 3. Wizualizacje
 
@@ -121,6 +123,13 @@ Przy pierwszym uruchomieniu aplikacja automatycznie utworzy:
 - Wyświetlanie do 5 pokoleń w przód
 - Kodowanie kolorami według płci
 
+#### Pełne drzewo (NOWOŚĆ!)
+- Graficzna reprezentacja wszystkich osób i relacji w bazie danych
+- Wyświetlanie całej rodziny w jednym widoku
+- Pokazuje relacje rodzic-dziecko i małżeńskie
+- Kodowanie kolorami według płci
+- Wyświetlanie nazwisk panieńskich
+
 #### Oś czasu
 - Chronologiczne przedstawienie życia wszystkich osób
 - Wizualizacja dat urodzenia i śmierci
@@ -131,6 +140,7 @@ Przy pierwszym uruchomieniu aplikacja automatycznie utworzy:
 - **Import** - wczytywanie danych z plików GEDCOM
 - **Eksport** - zapisywanie danych do standardu GEDCOM
 - Zgodność z formatem GEDCOM 5.5.1
+- Wsparcie dla nazwisk panieńskich (tag _MARNM)
 
 ## Użytkowanie
 
@@ -241,5 +251,14 @@ W razie pytań lub problemów, otwórz issue na GitHubie.
 
 ---
 
-**Wersja:** 1.0.0  
+**Wersja:** 1.1.0  
 **Data ostatniej aktualizacji:** 2025-11-01
+
+## Nowe w wersji 1.1.0
+
+- ✨ **Nazwisko panieńskie** - możliwość dodania nazwiska przed ślubem
+- 🌳 **Pełne drzewo genealogiczne** - wizualizacja wszystkich osób i relacji w jednym widoku
+- 👨‍👩‍👧 **Wybór rodziców przy dodawaniu osoby** - szybsze tworzenie drzewa genealogicznego
+- 🔄 **Automatyczna migracja bazy danych** - bezproblemowa aktualizacja istniejących baz
+
+Zobacz [CHANGELOG.md](CHANGELOG.md) dla pełnej listy zmian.

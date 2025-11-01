@@ -78,6 +78,10 @@ class GedcomHandler:
                                 if len(name_parts) > 1:
                                     current_person['nazwisko'] = ' '.join(name_parts[1:])
                         
+                        elif sub_parts[1] == '_MARNM' and len(sub_parts) >= 3:
+                            # Nazwisko panieńskie (niestandardowy tag GEDCOM)
+                            current_person['nazwisko_panienskie'] = sub_parts[2].strip()
+                        
                         elif sub_parts[1] == 'SEX' and len(sub_parts) >= 3:
                             sex = sub_parts[2].strip()
                             current_person['plec'] = 'M' if sex == 'M' else 'K' if sex == 'F' else None
@@ -109,7 +113,8 @@ class GedcomHandler:
                         current_person['nazwisko'],
                         current_person['data_urodzenia'],
                         current_person['data_smierci'],
-                        current_person['plec']
+                        current_person['plec'],
+                        nazwisko_panienskie=current_person.get('nazwisko_panienskie')
                     )
                     person_map[current_person['gedcom_id']] = person_id
                 
@@ -146,6 +151,9 @@ class GedcomHandler:
             
             lines.append(f"0 {person_id} INDI")
             lines.append(f"1 NAME {person['imie']} /{person['nazwisko']}/")
+            
+            if person.get('nazwisko_panienskie'):
+                lines.append(f"1 _MARNM {person['nazwisko_panienskie']}")
             
             if person.get('plec'):
                 sex = 'M' if person['plec'] == 'M' else 'F'

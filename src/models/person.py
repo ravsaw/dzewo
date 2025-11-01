@@ -14,6 +14,7 @@ class Person:
     id: Optional[int] = None
     imie: str = ""
     nazwisko: str = ""
+    nazwisko_panienskie: Optional[str] = None
     data_urodzenia: Optional[str] = None
     data_smierci: Optional[str] = None
     plec: Optional[str] = None
@@ -54,6 +55,7 @@ class Person:
             'id': self.id,
             'imie': self.imie,
             'nazwisko': self.nazwisko,
+            'nazwisko_panienskie': self.nazwisko_panienskie,
             'data_urodzenia': self.data_urodzenia,
             'data_smierci': self.data_smierci,
             'plec': self.plec,
@@ -70,6 +72,7 @@ class Person:
             id=data.get('id'),
             imie=data.get('imie', ''),
             nazwisko=data.get('nazwisko', ''),
+            nazwisko_panienskie=data.get('nazwisko_panienskie'),
             data_urodzenia=data.get('data_urodzenia'),
             data_smierci=data.get('data_smierci'),
             plec=data.get('plec'),

@@ -52,6 +52,10 @@ class PersonDialog(QDialog):
         self.nazwisko_edit = QLineEdit()
         form_layout.addRow("Nazwisko*:", self.nazwisko_edit)
         
+        # Nazwisko panieńskie
+        self.nazwisko_panienskie_edit = QLineEdit()
+        form_layout.addRow("Nazwisko panieńskie:", self.nazwisko_panienskie_edit)
+        
         # Płeć
         self.plec_combo = QComboBox()
         self.plec_combo.addItems(["", "M", "K"])
@@ -109,6 +113,25 @@ class PersonDialog(QDialog):
         self.notatki_edit.setMaximumHeight(100)
         form_layout.addRow("Notatki:", self.notatki_edit)
         
+        # Rodzice (tylko dla nowej osoby)
+        if not person_id:
+            # Matka
+            mother_layout = QHBoxLayout()
+            self.mother_combo = QComboBox()
+            self.mother_combo.addItem("Nie wybrano", None)
+            mother_layout.addWidget(self.mother_combo)
+            form_layout.addRow("Matka (opcjonalnie):", mother_layout)
+            
+            # Ojciec
+            father_layout = QHBoxLayout()
+            self.father_combo = QComboBox()
+            self.father_combo.addItem("Nie wybrano", None)
+            father_layout.addWidget(self.father_combo)
+            form_layout.addRow("Ojciec (opcjonalnie):", father_layout)
+            
+            # Załaduj listę osób do wyboru rodziców
+            self.load_parent_options()
+        
         layout.addLayout(form_layout)
         
         # Przyciski
@@ -131,6 +154,23 @@ class PersonDialog(QDialog):
     def toggle_death_date(self, text):
         """Włącza/wyłącza pole daty śmierci"""
         self.data_smierci_edit.setEnabled(text == "Zmarła")
+    
+    def load_parent_options(self):
+        """Ładuje listę potencjalnych rodziców do wyboru"""
+        persons = self.db_manager.get_all_persons()
+        
+        for person in persons:
+            name = f"{person['imie']} {person['nazwisko']}"
+            if person.get('data_urodzenia'):
+                name += f" ({person['data_urodzenia'][:4]})"
+            
+            # Dodaj do listy matek (płeć K)
+            if person.get('plec') == 'K':
+                self.mother_combo.addItem(name, person['id'])
+            
+            # Dodaj do listy ojców (płeć M)
+            if person.get('plec') == 'M':
+                self.father_combo.addItem(name, person['id'])
     
     def choose_photo(self):
         """Wybiera zdjęcie osoby"""
@@ -159,6 +199,9 @@ class PersonDialog(QDialog):
         
         self.imie_edit.setText(person['imie'])
         self.nazwisko_edit.setText(person['nazwisko'])
+        
+        if person.get('nazwisko_panienskie'):
+            self.nazwisko_panienskie_edit.setText(person['nazwisko_panienskie'])
         
         if person['plec']:
             index = self.plec_combo.findText(person['plec'])
@@ -205,6 +248,8 @@ class PersonDialog(QDialog):
         
         plec = self.plec_combo.currentText() if self.plec_combo.currentText() else None
         
+        nazwisko_panienskie = self.nazwisko_panienskie_edit.text().strip() or None
+        
         data_urodzenia = None
         if self.data_urodzenia_check.currentText() == "Znana":
             data_urodzenia = self.data_urodzenia_edit.date().toString("yyyy-MM-dd")
@@ -240,14 +285,29 @@ class PersonDialog(QDialog):
                 # Edycja istniejącej osoby
                 self.db_manager.update_person(
                     self.person_id, imie, nazwisko, data_urodzenia, data_smierci,
-                    plec, miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka
+                    plec, miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka,
+                    nazwisko_panienskie
                 )
             else:
                 # Dodanie nowej osoby
-                self.db_manager.add_person(
+                new_person_id = self.db_manager.add_person(
                     imie, nazwisko, data_urodzenia, data_smierci,
-                    plec, miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka
+                    plec, miejsce_urodzenia, miejsce_smierci, notatki, zdjecie_sciezka,
+                    nazwisko_panienskie
                 )
+                
+                # Dodaj relacje z rodzicami jeśli wybrano (tylko dla nowej osoby)
+                if hasattr(self, 'mother_combo'):
+                    mother_id = self.mother_combo.currentData()
+                    if mother_id:
+                        self.db_manager.add_relation(mother_id, new_person_id, 'rodzic')
+                        self.db_manager.add_relation(new_person_id, mother_id, 'dziecko')
+                
+                if hasattr(self, 'father_combo'):
+                    father_id = self.father_combo.currentData()
+                    if father_id:
+                        self.db_manager.add_relation(father_id, new_person_id, 'rodzic')
+                        self.db_manager.add_relation(new_person_id, father_id, 'dziecko')
             
             self.accept()
         except Exception as e:
